@@ -1,27 +1,14 @@
 import axios from 'axios';
 
-// Detect API URL based on environment
-const getApiUrl = () => {
-  // If accessing from network, use the host's IP
-  const hostname = window.location.hostname;
-  
-  // If localhost or 127.0.0.1, use localhost
-  if (hostname === 'localhost' || hostname === '127.0.0.1') {
-    return 'http://localhost:5000/api';
-  }
-  
-  // Otherwise use the same hostname with port 5000
-  return `http://${hostname}:5000/api`;
-};
+// Use relative URL - nginx will proxy /api to backend
+const API_URL = '/api';
 
-const API_URL = getApiUrl();
-
-console.log('API URL:', API_URL); // Debug log
+console.log('API URL:', API_URL);
 
 // Create axios instance with base configuration
 const api = axios.create({
   baseURL: API_URL,
-  timeout: 10000, // 10 second timeout
+  timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
   },
