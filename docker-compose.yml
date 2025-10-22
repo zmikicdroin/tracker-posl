@@ -1,48 +1,33 @@
-version: '3.8'
-
+version: '3'
 services:
   backend:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
-    container_name: tracker-backend
-    ports:
-      - "5000:5000"
-    environment:
-      - FLASK_ENV=production
-      - SECRET_KEY=${SECRET_KEY:-your-secret-key-change-this-in-production}
-      - DATABASE_PATH=/app/data/jobtracker.db
-      - UPLOAD_FOLDER=/app/uploads
+    image: backend-image
+    expose:
+      - "5000"
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "http://localhost:5000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
     volumes:
       - backend-data:/app/data
-      - backend-uploads:/app/uploads
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:5000/"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
-
+    environment:
+      - NODE_ENV=production
+    restart: always
   frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-    container_name: tracker-frontend
-    ports:
-      - "80:80"
-    depends_on:
-      - backend
-    restart: unless-stopped
+    image: frontend-image
+    expose:
+      - "80"
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost/"]
+      test: ["CMD", "curl", "--fail", "http://localhost:80/health"]
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 40s
-
+    volumes:
+      - frontend-data:/app/data
+    environment:
+      - NODE_ENV=production
+    restart: always
 volumes:
   backend-data:
-    driver: local
-  backend-uploads:
-    driver: local
+  frontend-data:
