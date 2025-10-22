@@ -1,0 +1,172 @@
+### Variables
+@baseUrl = http://localhost:5000/api
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxLCJleHAiOjE3NjE3NjA5MTd9.YdJi3hqlgWistH7Y6T_5GuwsWCweBFZORQhA-88cCGo
+@applicationId = 
+
+### Health Check (optional - add this endpoint to Flask if needed)
+GET http://localhost:5000/
+
+###############################################
+### 1. Register New User
+POST {{baseUrl}}/register
+Content-Type: application/json
+
+{
+  "username": "admin",
+  "email": "admin@admin.com",
+  "password": "password"
+}
+
+###############################################
+### 2. Register Another User (for testing)
+POST {{baseUrl}}/register
+Content-Type: application/json
+
+{
+  "username": "testuser",
+  "email": "test@example.com",
+  "password": "test123"
+}
+
+###############################################
+### 3. Login (Copy token from response and paste above in @token variable)
+POST {{baseUrl}}/login
+Content-Type: application/json
+
+{
+  "username": "admin",
+  "password": "password"
+}
+
+###############################################
+### 4. Login with Test User
+POST {{baseUrl}}/login
+Content-Type: application/json
+
+{
+  "username": "testuser",
+  "password": "test123"
+}
+
+###############################################
+### 5. Create Application (without CV)
+POST {{baseUrl}}/applications
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "company": "Google",
+  "application_date": "2025-10-22",
+  "cover_letter": "Dear Hiring Manager,\n\nI am writing to express my strong interest in the Software Engineer position at Google. With my extensive experience in full-stack development and passion for innovative technology, I believe I would be a valuable addition to your team.\n\nBest regards,\nZmikic Droin"
+}
+
+###############################################
+### 6. Create Application with Form Data (with CV)
+# Note: You need to use a real PDF file path in your system
+POST {{baseUrl}}/applications
+Authorization: Bearer {{token}}
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="company"
+
+Microsoft
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="application_date"
+
+2025-10-20
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="cover_letter"
+
+Dear Microsoft Hiring Team,
+
+I am excited to apply for the Senior Developer position. My background in cloud computing and enterprise software development aligns perfectly with Microsoft's mission to empower every person and organization.
+
+Sincerely,
+Zmikic Droin
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="cv"; filename="resume1.pdf"
+Content-Type: application/pdf
+
+< resume1.pdf
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+###############################################
+### 7. Create Application - Amazon
+POST {{baseUrl}}/applications
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "company": "Amazon",
+  "application_date": "2025-10-21",
+  "cover_letter": "Dear Amazon Recruitment,\n\nI am applying for the AWS Solutions Architect position. My experience with cloud infrastructure and DevOps makes me an ideal candidate.\n\nThank you for your consideration."
+}
+
+###############################################
+### 8. Create Application - Meta
+POST {{baseUrl}}/applications
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "company": "Meta",
+  "application_date": "2025-10-18",
+  "cover_letter": "To the Meta Talent Team,\n\nI am interested in the Full Stack Engineer role. My passion for building scalable social platforms aligns with Meta's vision.\n\nLooking forward to hearing from you."
+}
+
+###############################################
+### 9. Get All Applications (List all applications for logged-in user)
+GET {{baseUrl}}/applications
+Authorization: Bearer {{token}}
+
+###############################################
+### 10. Delete Application (Update @applicationId with actual ID from GET response)
+DELETE {{baseUrl}}/applications/{{applicationId}}
+Authorization: Bearer {{token}}
+
+###############################################
+### 11. Delete Application by Specific ID
+DELETE {{baseUrl}}/applications/1
+Authorization: Bearer {{token}}
+
+###############################################
+### 12. Download CV File (Update filename with actual filename)
+GET {{baseUrl}}/uploads/1_1729619422.123_resume.pdf
+Authorization: Bearer {{token}}
+
+###############################################
+### 13. Test Unauthorized Access (without token)
+GET {{baseUrl}}/applications
+
+###############################################
+### 14. Test with Invalid Token
+GET {{baseUrl}}/applications
+Authorization: Bearer invalid_token_here
+
+###############################################
+### 15. Test with Malformed Token
+GET {{baseUrl}}/applications
+Authorization: invalid_format
+
+###############################################
+### TESTING WORKFLOW
+# 
+# Step 1: Register a new user (request #1)
+# Step 2: Login with that user (request #3)
+# Step 3: Copy the token from the response
+# Step 4: Paste the token in the @token variable at the top
+# Step 5: Create some applications (requests #5, #7, #8)
+# Step 6: Get all applications (request #9)
+# Step 7: Copy an application ID from the response
+# Step 8: Paste it in @applicationId variable
+# Step 9: Delete that application (request #10)
+# Step 10: Verify it's deleted (request #9 again)
+
+###############################################
+### NOTES:
+# - For file upload (request #6), replace './path/to/your/resume.pdf' with actual file path
+# - Tokens typically expire after 7 days (as configured in Flask app)
+# - Each user can only see/delete their own applications
+# - All dates should be in YYYY-MM-DD format
+# - Cover letters support multiline text with \n
